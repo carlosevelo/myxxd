@@ -42,7 +42,38 @@ FILE *parseCommandLine(int argc, char **argv, int *bits) {
  * size: the size of the array
  **/
 void printDataAsHex(unsigned char *data, size_t size) {
-  printf("TODO 1: printDataAsHex (2)");
+  int extraSpaces = 16 - size;
+  int tmp = extraSpaces / 2;
+
+  //If there are a max 16 chars in this line
+  if (extraSpaces == 0) {
+    for (size_t i = 0; i < size; i++) {
+      if (i % 2) {
+        printf("%02x", data[i]);  
+      }
+      else {
+        printf(" %02x", data[i]);  
+      }
+    }
+  }
+  //If there are <16 chars and extra spaces need to be printed
+  else {
+    for (size_t i = 0; i < size; i++) {
+      if (i % 2) {
+        printf("%02x", data[i]);  
+      } 
+      else {
+        printf(" %02x", data[i]);  
+      }  
+    }
+
+    //Calculates how many spaces to print
+    extraSpaces = extraSpaces * 2;
+    extraSpaces = extraSpaces + tmp;
+    for (size_t i = 0; i < extraSpaces; i++) {
+      printf(" ");
+    }
+  }
 }
 
 /**
@@ -54,7 +85,19 @@ void printDataAsHex(unsigned char *data, size_t size) {
  * size: the size of the array
  **/
 void printDataAsChars(unsigned char *data, size_t size) {
-  printf("TODO 2: printDataAsChars (3)");
+  int extraSpaces = 16 - size;
+
+  if (extraSpaces == 0) {
+    for (size_t i = 0; i < size; i++) {
+      printf("%c", data[i]);
+    }
+  }
+  else
+  {
+    for (size_t i = 0; i <= size; i++) {
+      printf("%c", data[i]);
+    }
+  }
 }
 
 void readAndPrintInputAsHex(FILE *input) {
