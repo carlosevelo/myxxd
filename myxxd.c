@@ -35,17 +35,15 @@ FILE *parseCommandLine(int argc, char **argv, int *bits) {
 
 /**
  * Writes data to stdout in hexadecimal.
- *
- * See myxxd.md for details.
- *
  * data: an array of no more than 16 characters
  * size: the size of the array
  **/
 void printDataAsHex(unsigned char *data, size_t size) {
-  int extraSpaces = 16 - size;
+  int maxSize = 16;
+  int extraSpaces = maxSize - size;
   int tmp = extraSpaces / 2;
 
-  //If there are a max 16 chars in this line
+  //If line has a max size of 16
   if (extraSpaces == 0) {
     for (size_t i = 0; i < size; i++) {
       if (i % 2) {
@@ -56,7 +54,7 @@ void printDataAsHex(unsigned char *data, size_t size) {
       }
     }
   }
-  //If there are <16 chars and extra spaces need to be printed
+  //If line doesn't have max size and extra spaces need to be printed
   else {
     for (size_t i = 0; i < size; i++) {
       if (i % 2) {
@@ -67,11 +65,75 @@ void printDataAsHex(unsigned char *data, size_t size) {
       }  
     }
 
-    //Calculates how many spaces to print
+    //Prints extra spaces
     extraSpaces = extraSpaces * 2;
     extraSpaces = extraSpaces + tmp;
     for (size_t i = 0; i < extraSpaces; i++) {
       printf(" ");
+    }
+  }
+}
+
+void printDataAsBits(unsigned char *data, size_t size) {
+  int maxSize = 6;
+  int extraSpaces = maxSize - size;
+  int tmp = extraSpaces;
+  int numBits = 8;
+
+  unsigned char output[numBits];
+
+  //If line has a max size of 6
+  if (extraSpaces == 0) {
+    for (size_t i = 0; i < size; i++) {
+      unsigned char currChar = data[i];
+      //Stores bits in reverse order
+      for (size_t j = 0; j < numBits; j++) {
+        if (currChar % 2) {
+          output[j] = 1;
+        }
+        else
+        {
+          output[j] = 0;
+        }
+        currChar = currChar / 2;
+      }
+      //Prints in correct order
+      printf(" ");
+      for (size_t j = 1; j <= numBits; j++) {
+        printf("%d", output[numBits - j]);
+      }
+    }
+
+  }
+  //If line doesn't have max size and extra spaces need to be printed
+  else {
+    for (size_t i = 0; i < size; i++) {
+      unsigned char currChar = data[i];
+      
+      //Stores bits in reverse order
+      for (size_t j = 0; j < numBits; j++) {
+        if (currChar % 2) {
+          output[j] = 1;
+        }
+        else
+        {
+          output[j] = 0;
+        }
+        currChar = currChar / 2;
+      }
+      
+      //Prints in correct order
+      printf(" ");
+      for (size_t j = 1; j <= numBits; j++) {
+        printf("%d", output[numBits - j]);
+      }
+      
+      //Prints extra spaces
+      extraSpaces = extraSpaces * numBits;
+      extraSpaces = extraSpaces + tmp;
+      for (size_t i = 0; i < extraSpaces; i++) {
+        printf(" ");
+      }
     }
   }
 }
@@ -85,17 +147,13 @@ void printDataAsHex(unsigned char *data, size_t size) {
  * size: the size of the array
  **/
 void printDataAsChars(unsigned char *data, size_t size) {
-  int extraSpaces = 16 - size;
-
-  if (extraSpaces == 0) {
-    for (size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
+    //Checks if char is out of printable range
+    if (data[i] >= 32 && data[i] <= 126) {
       printf("%c", data[i]);
     }
-  }
-  else
-  {
-    for (size_t i = 0; i <= size; i++) {
-      printf("%c", data[i]);
+    else {
+      printf(".");
     }
   }
 }
@@ -117,13 +175,21 @@ void readAndPrintInputAsHex(FILE *input) {
 
 /**
  * Bits output for xxd.
- *
- * See myxxd.md for details.
- *
  * input: input stream
  **/
 void readAndPrintInputAsBits(FILE *input) {
-  printf("TODO 3: readAndPrintInputAsBits\n");
+  unsigned char data[6];
+  int numBytesRead = fread(data, 1, 6, input);
+  unsigned int offset = 0;
+  while (numBytesRead != 0) {
+    printf("%08x:", offset);
+    offset += numBytesRead;
+    printDataAsBits(data, numBytesRead);
+    printf("  ");
+    printDataAsChars(data, numBytesRead);
+    printf("\n");
+    numBytesRead = fread(data, 1, 6, input);
+  }
 }
 
 int main(int argc, char **argv) {
